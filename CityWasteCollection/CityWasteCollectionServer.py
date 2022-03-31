@@ -21,6 +21,9 @@ class WasteCollectionServiceServicer(WasteCollectionGroundControl_pb2_grpc.Waste
     # GetRoute Function
     def GetRoute(self, request, context):
 
+        # Call GetNetworkPaths
+        # Send route to client; Make sure route hasn't been taken already.
+
         return 0
 
     # DispatchAnotherVehicle Function
@@ -66,7 +69,7 @@ def GetMapNetwork():
     return map_dict
 
 
-#
+# Return NetworkPaths
 def GetNetworkPaths():
 
     # Get and extract map dict.
@@ -74,6 +77,10 @@ def GetNetworkPaths():
     map_graph = map_dict["map_graph"]
     sources = map_dict["sources"]
     targets = map_dict["targets"]
+
+    # Print Source and Target nodes.
+    pprint.pprint(f"Source Nodes: {sources}")
+    pprint.pprint(f"Target Nodes: {targets}")
 
     # Get all pair paths.
     all_paths = dict(nx.all_pairs_shortest_path(map_graph, cutoff=7))
@@ -90,16 +97,22 @@ def GetNetworkPaths():
                 source_to_target_path = all_source_paths[s][t]
                 all_source_to_target_paths.append(source_to_target_path)
 
+    print("\nAll source-to-target paths:")
     pprint.pprint(all_source_to_target_paths)
-    print("sources:")
-    pprint.pprint(sources)
-    print("targets:")
-    pprint.pprint(targets)
+
+    # Return paths.
+    return all_source_to_target_paths
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# MAIN SERVER FUNCTIONS
+# ----------------------------------------------------------------------------------------------------------------------
 
-    # print()
+# Main Function
+def main():
+    GetNetworkPaths()
 
 
-
-GetNetworkPaths()
+# Startup
+if __name__ == '__main__':
+    main()

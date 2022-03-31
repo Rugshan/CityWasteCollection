@@ -1,0 +1,53 @@
+syntax = "proto3";
+package WasteCollection;
+
+// WasteCollectionService
+service WasteCollectionService{
+
+    // GetRoute Procedure: Determines a route for a waste vehicle to take.
+    rpc GetRoute(VehicleIdentifier) returns (CollectionRoute);
+
+    // DispatchAnotherVehicle: When a waste vehicle reaches max capacity, request another vehicle to finish the route.
+    rpc DispatchAnotherVehicle(VehicleCurrentContext) returns (DispatchInfo);
+
+}
+
+// VehicleIdentifier consists of the vehicle's ID and waste collection type.
+message VehicleIdentifier{
+    int32 id = 1;
+    string type = 2;
+}
+
+// CollectionRoute is a 2D structure where each row is a node-pair representing a portion of a street.
+message CollectionRoute{
+
+    message NodePair{
+        int32 fromNode = 2;
+        int32 toNode = 3;
+    }
+
+    repeated NodePair pair = 1;
+
+}
+
+// VehicleCurrentContext consists of the vehicle's ID, type, and remaining route.
+message VehicleCurrentContext{
+
+    message NodePair{
+        int32 fromNode = 4;
+        int32 toNode = 5;
+    }
+
+    int32 id = 1;
+    int32 type = 2;
+    repeated NodePair pair = 3;
+}
+
+// DispatchInfo consists of the new vehicle's ID, type, and starting node.
+message DispatchInfo{
+
+    int32 id = 1;
+    int32 type = 2;
+    int32 startNode = 3;
+
+}

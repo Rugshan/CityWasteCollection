@@ -1,7 +1,5 @@
 # gRPC Imports
 import grpc
-import networkx
-
 import WasteCollectionGroundControl_pb2
 import WasteCollectionGroundControl_pb2_grpc
 
@@ -12,25 +10,9 @@ import networkx as nx
 import matplotlib.pyplot as plot
 import pprint
 
-
-# ----------------------------------------------------------------------------------------------------------------------
-# GRPC SERVICE
-# ----------------------------------------------------------------------------------------------------------------------
-class WasteCollectionServiceServicer(WasteCollectionGroundControl_pb2_grpc.WasteCollectionServiceServicer):
-
-    # GetRoute Function
-    def GetRoute(self, request, context):
-
-        # Call GetNetworkPaths
-        # Send route to client; Make sure route hasn't been taken already.
-
-        return 0
-
-    # DispatchAnotherVehicle Function
-    def DispatchAnotherVehicle(self, request, context):
-
-        return 0
-
+# Threading Imports
+from concurrent import futures
+import threading
 
 # ----------------------------------------------------------------------------------------------------------------------
 # FUNCTIONS
@@ -97,11 +79,65 @@ def GetNetworkPaths():
                 source_to_target_path = all_source_paths[s][t]
                 all_source_to_target_paths.append(source_to_target_path)
 
+    all_source_to_target_paths_integer = [list(map(int, lst)) for lst in all_source_to_target_paths]
+
     print("\nAll source-to-target paths:")
-    pprint.pprint(all_source_to_target_paths)
+    pprint.pprint(all_source_to_target_paths_integer)
 
     # Return paths.
-    return all_source_to_target_paths
+    return all_source_to_target_paths_integer
+
+
+# Routes Global Variable
+global_routes_list = GetNetworkPaths()
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# GRPC SERVICE
+# ----------------------------------------------------------------------------------------------------------------------
+class WasteCollectionServiceServicer(WasteCollectionGroundControl_pb2_grpc.WasteCollectionServiceServicer):
+
+    # GetRoute Function
+    def GetRoute(self, request, context):
+
+        # Request
+        vehicle_id = request.vehicle_id
+        vehicle_type = request.vehicle_type
+
+        # Call GetNetworkPaths
+        if len(global_routes_list) > 0:
+
+            # Read first available route.
+            route_list = global_routes_list[0]
+
+            # Print to terminal.
+            print(f"Vehicle #{vehicle_id} ({vehicle_type}) has been assigned route: {route_list}")
+
+            # Remove assigned route.
+            # global global_routes_list
+            global_routes_list.pop(0)
+
+            # Create Response
+            collection_route = WasteCollectionGroundControl_pb2.CollectionRoute()
+            collection_route.nodes.extend(route_list)
+
+            return collection_route
+
+        else:
+
+            # Print to terminal.
+            print(f"Vehicle #{vehicle_id} ({vehicle_type}) cannot be assigned a route.")
+
+            # Create response (with values -1)
+            collection_route = WasteCollectionGroundControl_pb2.CollectionRoute()
+            collection_route.nodes.extend([-1, -1])
+
+            return collection_route
+
+    # DispatchAnotherVehicle Function
+    def DispatchAnotherVehicle(self, request, context):
+
+        return 0
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -110,7 +146,18 @@ def GetNetworkPaths():
 
 # Main Function
 def main():
-    GetNetworkPaths()
+
+    # Server Definition
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    WasteCollectionGroundControl_pb2_grpc.add_WasteCollectionServiceServicer_to_server(WasteCollectionServiceServicer(),
+                                                                                       server)
+    # Select port and start server.
+    server.add_insecure_port('[::]:44444')
+    server.start()
+    print('City Waste Collection Server Started...')
+
+    # Blocking Call
+    server.wait_for_termination()
 
 
 # Startup

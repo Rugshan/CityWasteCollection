@@ -14,15 +14,13 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"WasteCollectionGroundControl.proto\x12\x0fWasteCollection\"-\n\x11VehicleIdentifier\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04type\x18\x02 \x01(\t\"x\n\x0f\x43ollectionRoute\x12\x37\n\x04pair\x18\x01 \x03(\x0b\x32).WasteCollection.CollectionRoute.NodePair\x1a,\n\x08NodePair\x12\x10\n\x08\x66romNode\x18\x02 \x01(\x05\x12\x0e\n\x06toNode\x18\x03 \x01(\x05\"\x9e\x01\n\x15VehicleCurrentContext\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04type\x18\x02 \x01(\x05\x12=\n\x04pair\x18\x03 \x03(\x0b\x32/.WasteCollection.VehicleCurrentContext.NodePair\x1a,\n\x08NodePair\x12\x10\n\x08\x66romNode\x18\x04 \x01(\x05\x12\x0e\n\x06toNode\x18\x05 \x01(\x05\";\n\x0c\x44ispatchInfo\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04type\x18\x02 \x01(\x05\x12\x11\n\tstartNode\x18\x03 \x01(\x05\x32\xcb\x01\n\x16WasteCollectionService\x12P\n\x08GetRoute\x12\".WasteCollection.VehicleIdentifier\x1a .WasteCollection.CollectionRoute\x12_\n\x16\x44ispatchAnotherVehicle\x12&.WasteCollection.VehicleCurrentContext\x1a\x1d.WasteCollection.DispatchInfob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"WasteCollectionGroundControl.proto\x12\x0fWasteCollection\"=\n\x11VehicleIdentifier\x12\x12\n\nvehicle_id\x18\x01 \x01(\x05\x12\x14\n\x0cvehicle_type\x18\x02 \x01(\t\" \n\x0f\x43ollectionRoute\x12\r\n\x05nodes\x18\x01 \x03(\x05\"Z\n\x15VehicleCurrentContext\x12\x12\n\nvehicle_id\x18\x01 \x01(\x05\x12\x14\n\x0cvehicle_type\x18\x02 \x01(\x05\x12\x17\n\x0fremaining_nodes\x18\x03 \x03(\x05\"K\n\x0c\x44ispatchInfo\x12\x12\n\nvehicle_id\x18\x01 \x01(\x05\x12\x14\n\x0cvehicle_type\x18\x02 \x01(\x05\x12\x11\n\tstartNode\x18\x03 \x01(\x05\x32\xcb\x01\n\x16WasteCollectionService\x12P\n\x08GetRoute\x12\".WasteCollection.VehicleIdentifier\x1a .WasteCollection.CollectionRoute\x12_\n\x16\x44ispatchAnotherVehicle\x12&.WasteCollection.VehicleCurrentContext\x1a\x1d.WasteCollection.DispatchInfob\x06proto3')
 
 
 
 _VEHICLEIDENTIFIER = DESCRIPTOR.message_types_by_name['VehicleIdentifier']
 _COLLECTIONROUTE = DESCRIPTOR.message_types_by_name['CollectionRoute']
-_COLLECTIONROUTE_NODEPAIR = _COLLECTIONROUTE.nested_types_by_name['NodePair']
 _VEHICLECURRENTCONTEXT = DESCRIPTOR.message_types_by_name['VehicleCurrentContext']
-_VEHICLECURRENTCONTEXT_NODEPAIR = _VEHICLECURRENTCONTEXT.nested_types_by_name['NodePair']
 _DISPATCHINFO = DESCRIPTOR.message_types_by_name['DispatchInfo']
 VehicleIdentifier = _reflection.GeneratedProtocolMessageType('VehicleIdentifier', (_message.Message,), {
   'DESCRIPTOR' : _VEHICLEIDENTIFIER,
@@ -32,34 +30,18 @@ VehicleIdentifier = _reflection.GeneratedProtocolMessageType('VehicleIdentifier'
 _sym_db.RegisterMessage(VehicleIdentifier)
 
 CollectionRoute = _reflection.GeneratedProtocolMessageType('CollectionRoute', (_message.Message,), {
-
-  'NodePair' : _reflection.GeneratedProtocolMessageType('NodePair', (_message.Message,), {
-    'DESCRIPTOR' : _COLLECTIONROUTE_NODEPAIR,
-    '__module__' : 'WasteCollectionGroundControl_pb2'
-    # @@protoc_insertion_point(class_scope:WasteCollection.CollectionRoute.NodePair)
-    })
-  ,
   'DESCRIPTOR' : _COLLECTIONROUTE,
   '__module__' : 'WasteCollectionGroundControl_pb2'
   # @@protoc_insertion_point(class_scope:WasteCollection.CollectionRoute)
   })
 _sym_db.RegisterMessage(CollectionRoute)
-_sym_db.RegisterMessage(CollectionRoute.NodePair)
 
 VehicleCurrentContext = _reflection.GeneratedProtocolMessageType('VehicleCurrentContext', (_message.Message,), {
-
-  'NodePair' : _reflection.GeneratedProtocolMessageType('NodePair', (_message.Message,), {
-    'DESCRIPTOR' : _VEHICLECURRENTCONTEXT_NODEPAIR,
-    '__module__' : 'WasteCollectionGroundControl_pb2'
-    # @@protoc_insertion_point(class_scope:WasteCollection.VehicleCurrentContext.NodePair)
-    })
-  ,
   'DESCRIPTOR' : _VEHICLECURRENTCONTEXT,
   '__module__' : 'WasteCollectionGroundControl_pb2'
   # @@protoc_insertion_point(class_scope:WasteCollection.VehicleCurrentContext)
   })
 _sym_db.RegisterMessage(VehicleCurrentContext)
-_sym_db.RegisterMessage(VehicleCurrentContext.NodePair)
 
 DispatchInfo = _reflection.GeneratedProtocolMessageType('DispatchInfo', (_message.Message,), {
   'DESCRIPTOR' : _DISPATCHINFO,
@@ -73,17 +55,13 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   _VEHICLEIDENTIFIER._serialized_start=55
-  _VEHICLEIDENTIFIER._serialized_end=100
-  _COLLECTIONROUTE._serialized_start=102
-  _COLLECTIONROUTE._serialized_end=222
-  _COLLECTIONROUTE_NODEPAIR._serialized_start=178
-  _COLLECTIONROUTE_NODEPAIR._serialized_end=222
-  _VEHICLECURRENTCONTEXT._serialized_start=225
-  _VEHICLECURRENTCONTEXT._serialized_end=383
-  _VEHICLECURRENTCONTEXT_NODEPAIR._serialized_start=339
-  _VEHICLECURRENTCONTEXT_NODEPAIR._serialized_end=383
-  _DISPATCHINFO._serialized_start=385
-  _DISPATCHINFO._serialized_end=444
-  _WASTECOLLECTIONSERVICE._serialized_start=447
-  _WASTECOLLECTIONSERVICE._serialized_end=650
+  _VEHICLEIDENTIFIER._serialized_end=116
+  _COLLECTIONROUTE._serialized_start=118
+  _COLLECTIONROUTE._serialized_end=150
+  _VEHICLECURRENTCONTEXT._serialized_start=152
+  _VEHICLECURRENTCONTEXT._serialized_end=242
+  _DISPATCHINFO._serialized_start=244
+  _DISPATCHINFO._serialized_end=319
+  _WASTECOLLECTIONSERVICE._serialized_start=322
+  _WASTECOLLECTIONSERVICE._serialized_end=525
 # @@protoc_insertion_point(module_scope)

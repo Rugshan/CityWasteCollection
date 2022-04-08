@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"WasteCollectionGroundControl.proto\x12\x0fWasteCollection\"=\n\x11VehicleIdentifier\x12\x12\n\nvehicle_id\x18\x01 \x01(\x05\x12\x14\n\x0cvehicle_type\x18\x02 \x01(\t\" \n\x0f\x43ollectionRoute\x12\r\n\x05nodes\x18\x01 \x03(\x05\"Z\n\x15VehicleCurrentContext\x12\x12\n\nvehicle_id\x18\x01 \x01(\x05\x12\x14\n\x0cvehicle_type\x18\x02 \x01(\x05\x12\x17\n\x0fremaining_nodes\x18\x03 \x03(\x05\"K\n\x0c\x44ispatchInfo\x12\x12\n\nvehicle_id\x18\x01 \x01(\x05\x12\x14\n\x0cvehicle_type\x18\x02 \x01(\x05\x12\x11\n\tstartNode\x18\x03 \x01(\x05\x32\xcb\x01\n\x16WasteCollectionService\x12P\n\x08GetRoute\x12\".WasteCollection.VehicleIdentifier\x1a .WasteCollection.CollectionRoute\x12_\n\x16\x44ispatchAnotherVehicle\x12&.WasteCollection.VehicleCurrentContext\x1a\x1d.WasteCollection.DispatchInfob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"WasteCollectionGroundControl.proto\x12\x0fWasteCollection\"=\n\x11VehicleIdentifier\x12\x12\n\nvehicle_id\x18\x01 \x01(\x05\x12\x14\n\x0cvehicle_type\x18\x02 \x01(\t\" \n\x0f\x43ollectionRoute\x12\r\n\x05nodes\x18\x01 \x03(\x05\"Z\n\x15VehicleCurrentContext\x12\x12\n\nvehicle_id\x18\x01 \x01(\x05\x12\x14\n\x0cvehicle_type\x18\x02 \x01(\t\x12\x17\n\x0fremaining_nodes\x18\x03 \x03(\x05\"K\n\x0c\x44ispatchInfo\x12\x12\n\nvehicle_id\x18\x01 \x01(\x05\x12\x14\n\x0cvehicle_type\x18\x02 \x01(\t\x12\x11\n\tstartNode\x18\x03 \x01(\x05\x32\xcb\x01\n\x16WasteCollectionService\x12P\n\x08GetRoute\x12\".WasteCollection.VehicleIdentifier\x1a .WasteCollection.CollectionRoute\x12_\n\x16\x44ispatchAnotherVehicle\x12&.WasteCollection.VehicleCurrentContext\x1a\x1d.WasteCollection.DispatchInfob\x06proto3')
 
 
 

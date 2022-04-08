@@ -1,5 +1,7 @@
 # gRPC Imports
 import grpc
+
+import CityWasteCollectionClient
 import WasteCollectionGroundControl_pb2
 import WasteCollectionGroundControl_pb2_grpc
 
@@ -92,6 +94,17 @@ def GetNetworkPaths():
 global_routes_list = GetNetworkPaths()
 
 
+# Dispatcher Function (Threaded)
+def Dispatcher(vehicle_id, vehicle_type, route_list):
+
+    # Dispatch another vehicle with the route provided by the caller vehicle.
+    CityWasteCollectionClient.main(vehicle_id + 50, vehicle_type, route_list)
+
+    # Print statement.
+    print(f"Dispatching Vehicle #{vehicle_id + 50} to continue Vehicle #{vehicle_id}'s path. "
+          f"Starting at node #{route_list[0]}.")
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # GRPC SERVICE
 # ----------------------------------------------------------------------------------------------------------------------
@@ -137,7 +150,27 @@ class WasteCollectionServiceServicer(WasteCollectionGroundControl_pb2_grpc.Waste
     # DispatchAnotherVehicle Function
     def DispatchAnotherVehicle(self, request, context):
 
-        return 0
+        # Request
+        vehicle_id = request.vehicle_id
+        vehicle_type = request.vehicle_type
+        remaining_nodes = request.remaining_nodes
+
+        # Print to terminal.
+        print(f"Request received from Vehicle #{vehicle_id} "
+              f"to dispatch another vehicle to remaining route {remaining_nodes}.")
+
+        # Call dispatcher.
+        # Start Dispatcher Thread
+        dispatcher_thread = threading.Thread(target=Dispatcher, args=[vehicle_id, vehicle_type, remaining_nodes])
+        dispatcher_thread.start()
+
+        # Response
+        response = WasteCollectionGroundControl_pb2.DispatchInfo()
+        response.vehicle_id = vehicle_id
+        response.vehicle_type = vehicle_type
+        response.startNode = remaining_nodes[0]
+
+        return response
 
 
 # ----------------------------------------------------------------------------------------------------------------------

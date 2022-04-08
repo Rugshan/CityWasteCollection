@@ -27,7 +27,7 @@ message CollectionRoute{
 message VehicleCurrentContext{
 
     int32 vehicle_id = 1;
-    int32 vehicle_type = 2;
+    string vehicle_type = 2;
     repeated int32 remaining_nodes = 3;
 }
 
@@ -35,7 +35,7 @@ message VehicleCurrentContext{
 message DispatchInfo{
 
     int32 vehicle_id = 1;
-    int32 vehicle_type = 2;
+    string vehicle_type = 2;
     int32 startNode = 3;
 
 }

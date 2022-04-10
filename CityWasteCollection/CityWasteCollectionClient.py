@@ -1,4 +1,6 @@
 # gRPC Imports
+from datetime import datetime
+
 import grpc
 import WasteCollectionGroundControl_pb2
 import WasteCollectionGroundControl_pb2_grpc
@@ -6,9 +8,10 @@ import WasteCollectionGroundControl_pb2_grpc
 # Imports
 import sys
 import random
+import json
+import pika
 
 # Global Variables
-# Variables
 total_capacity_litres = 21000.0
 current_capacity_litres = 0.0
 
@@ -62,10 +65,10 @@ def DispatchAnotherVehicle(vehicle_id, vehicle_type, remaining_nodes):
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Collection down a portion of the route (between two nodes).
-def CollectWaste(from_node, to_node, route_list):
+def CollectWaste(from_node, to_node, route_list, id_param, type_param):
 
     # Initial print statement.
-    print(f"Collecting from node {from_node} to node {to_node}.")
+    print(f"\nCollecting from node {from_node} to node {to_node}.")
 
     # Simulating x number of collections along node pair.
     number_of_collections = random.randint(5, 11)
@@ -79,13 +82,42 @@ def CollectWaste(from_node, to_node, route_list):
         global current_capacity_litres
         if current_capacity_litres + collection_volume_litres <= total_capacity_litres:
 
+            # Update current capacity.
             current_capacity_litres += collection_volume_litres
+
+            # Date-Time
+            format_string = '"%A, %d %B %Y, %H:%M:%S.%f"'
+            now = datetime.now()
+            datetime_string = now.strftime(format_string)
 
             # Print status.
             print(f"Collected {collection_volume_litres} litres of waste. "
                   f"Vehicle's volume: {current_capacity_litres}L/{total_capacity_litres}L")
 
-            # RabbitMQ to Log
+            # RabbitMQ connection, channel, and queue for collection logs.
+            connection = pika.BlockingConnection(parameters=pika.ConnectionParameters(host='localhost'))
+            channel = connection.channel()
+            channel.queue_declare(queue='Waste-Logs')
+
+            # Message body.
+            log = {
+                'ID': id_param,
+                'Type': type_param,
+                'VolumeL': collection_volume_litres,
+                'NodeA': from_node,
+                'NodeB': to_node,
+                'DateTime': datetime_string
+            }
+
+            # Publish message.
+            channel.basic_publish(
+                exchange='',
+                routing_key='Waste-Logs',
+                body=json.dumps(log)
+            )
+
+            # Close connection.
+            connection.close()
 
         else:
 
@@ -115,7 +147,6 @@ def CollectWaste(from_node, to_node, route_list):
 def main(id_arg, type_arg, *args):
 
     # Retrieve route; either automatically or dispatched by server.
-
     if len(args) == 0:
         route_list = list(GetRoute(id_arg, type_arg))
     else:
@@ -123,6 +154,7 @@ def main(id_arg, type_arg, *args):
 
     print(f"[Vehicle #{id_arg} ({type_arg})] Route: {route_list}")
 
+    # isDone node-pair flag.
     is_done_response = False
 
     # Collect waste along each edge in the given path.
@@ -130,7 +162,40 @@ def main(id_arg, type_arg, *args):
 
         if (i + 1) < len(route_list) and not is_done_response:
             to_node = route_list[i+1]
-            is_done_response = CollectWaste(from_node, to_node, route_list)
+            is_done_response = CollectWaste(from_node, to_node, route_list, id_arg, type_arg)
+
+            if not is_done_response:
+
+                # RabbitMQ connection, channel, exchange for notifications.
+                connection = pika.BlockingConnection(parameters=pika.ConnectionParameters(host='localhost'))
+                channel = connection.channel()
+                channel.exchange_declare(exchange='Notifier', exchange_type='fanout')
+
+                # Date Time
+                format_string = '"%A, %d %B %Y, %H:%M:%S.%f"'
+                now = datetime.now()
+                datetime_string = now.strftime(format_string)
+
+                # Message Body
+                notification = {
+                    'from_node': from_node,
+                    'to_node': to_node,
+                    'date_time': datetime_string
+                }
+
+                # Publish message.
+                channel.basic_publish(
+                    exchange='Notifier',
+                    routing_key='',
+                    body=json.dumps(notification)
+                )
+
+                # Print to terminal.
+                print(f"Sent message to notifier for completion of portion ({from_node},{to_node})")
+
+                # Close connection.
+                connection.close()
+
 
 # Startup
 if __name__ == '__main__':

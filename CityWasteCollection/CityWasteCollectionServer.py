@@ -1,13 +1,13 @@
-# gRPC Imports
+# gRPC / RabbitMQ Imports
+import ast
+import json
 import grpc
-
+import pika
 import CityWasteCollectionClient
 import WasteCollectionGroundControl_pb2
 import WasteCollectionGroundControl_pb2_grpc
 
 # Graphing Imports
-import pylab
-import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plot
 import pprint
@@ -16,9 +16,11 @@ import pprint
 from concurrent import futures
 import threading
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # FUNCTIONS
 # ----------------------------------------------------------------------------------------------------------------------
+
 
 # GetMapNetwork
 def GetMapNetwork():
@@ -159,8 +161,7 @@ class WasteCollectionServiceServicer(WasteCollectionGroundControl_pb2_grpc.Waste
         print(f"Request received from Vehicle #{vehicle_id} "
               f"to dispatch another vehicle to remaining route {remaining_nodes}.")
 
-        # Call dispatcher.
-        # Start Dispatcher Thread
+        # Start dispatcher thread with appropriate arguments.
         dispatcher_thread = threading.Thread(target=Dispatcher, args=[vehicle_id, vehicle_type, remaining_nodes])
         dispatcher_thread.start()
 
@@ -174,11 +175,50 @@ class WasteCollectionServiceServicer(WasteCollectionGroundControl_pb2_grpc.Waste
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+# RabbitMQ Waste-Logs
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Waste Logger
+def WasteLogger():
+
+    # RabbitMQ Connection, Channel, Queue
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
+    channel.queue_declare(queue='Waste-Logs')
+
+    # Callback function to log waste collection.
+    def callback(ch, method, properties, body):
+
+        # Convert body back to dict.
+        collection_info = body.decode("UTF-8")
+        collection_info = ast.literal_eval(collection_info)
+
+        # Write logs to WasteCollectionLogs.txt
+        file = "WasteCollectionLogs.txt"
+        with open(file, "a") as f:
+            f.write(f"{json.dumps(collection_info)}\n")
+        f.close()
+
+    # Start Consuming
+    channel.basic_consume(queue="Waste-Logs", on_message_callback=callback, auto_ack=True)
+    print('RabbitMQ: Waiting for Waste-Logs messages...')
+    channel.start_consuming()
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # MAIN SERVER FUNCTIONS
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Main Function
 def main():
+
+    # Clear Log File
+    file = "WasteCollectionLogs.txt"
+    open(file, 'w').close()
+
+    # Waste Logger Thread
+    waste_logger_thread = threading.Thread(target=WasteLogger)
+    waste_logger_thread.start()
 
     # Server Definition
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
